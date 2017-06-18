@@ -1,0 +1,28 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+group 'trait-test'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply from: "selectWebDriver.gradle"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile 'com.codeborne:selenide:4.4.3'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+ext {
+    chromeDriverVersion = '2.30'
+}
+task chromeTest(type: Test) {
+    dependsOn unzipChromeDriver
+    systemProperties['selenide.browser'] = 'chrome'
+    def chromedriverFilename = Os.isFamily(Os.FAMILY_WINDOWS) ? "chromedriver.exe" : "chromedriver"
+    systemProperty "webdriver.chrome.driver",
+            new File(unzipChromeDriver.outputs.files.singleFile, chromedriverFilename).absolutePath
+    test
+}
